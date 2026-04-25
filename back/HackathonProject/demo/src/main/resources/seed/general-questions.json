@@ -1,0 +1,47 @@
+[
+  {
+    "description": "Reporte general - mayores de 18 años",
+    "targetType": "AGE",
+    "targetValue": "18+",
+    "questions": [
+      { "question": "¿Qué edad tienes?", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "Una persona o grupo de personas intenta reclutarme.", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "Tengo conocimiento de contenido en redes sociales que promueve el reclutamiento forzado de niñas, niños y adolescentes.", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "El contenido reportado se difunde a través de:", "responseType": "MULTI_CHOICE", "openEnded": false },
+      { "question": "Si tienes la url del contenido reportado por favor agrégala.", "responseType": "URL", "openEnded": true },
+      { "question": "Si tienes alguna otra evidencia (capturas de pantalla, imágenes, videos, etc.) por favor agregarlas.", "responseType": "FILE", "openEnded": true }
+    ]
+  },
+  {
+    "description": "Reporte general - 12 a 17 años",
+    "targetType": "AGE",
+    "targetValue": "12-17",
+    "questions": [
+      { "question": "¿Qué edad tienes?", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "Una persona o grupo de personas intenta reclutarme.", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "Tengo conocimiento de contenido en redes sociales que promueve el reclutamiento forzado de niñas, niños y adolescentes.", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "El contenido reportado se difunde a través de:", "responseType": "MULTI_CHOICE", "openEnded": false },
+      { "question": "Si tienes la url del contenido reportado por favor agrégala.", "responseType": "URL", "openEnded": true },
+      { "question": "Si tienes alguna otra evidencia, por favor agregarlas.", "responseType": "FILE", "openEnded": true }
+    ]
+  },
+  {
+    "description": "Reporte general - 9 a 12 años",
+    "targetType": "AGE",
+    "targetValue": "9-12",
+    "questions": [
+      { "question": "¿Qué edad tienes?", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "Una persona o grupo de personas intenta reclutarme.", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "El contenido reportado se difunde a través de:", "responseType": "MULTI_CHOICE", "openEnded": false }
+    ]
+  },
+  {
+    "description": "Reporte general - 6 a 9 años",
+    "targetType": "AGE",
+    "targetValue": "6-9",
+    "questions": [
+      { "question": "¿Qué edad tienes?", "responseType": "SINGLE_CHOICE", "openEnded": false },
+      { "question": "Una persona o grupo de personas intenta reclutarme.", "responseType": "SINGLE_CHOICE", "openEnded": false }
+    ]
+  }
+]
