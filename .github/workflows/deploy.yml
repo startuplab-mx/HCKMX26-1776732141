@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: '**'
+    branches: 'integration/v1'
 
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'front/package-lock.json'
+          cache-dependency-path: front/package-lock.json
       
       - name: Install dependencies
         working-directory: ./front
@@ -44,16 +44,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'  
+          cache: 'maven'
       
       - name: Build backend
-        working-directory: ./back
-        run: mvn clean package
+        working-directory: ./back/HackathonProject/demo
+        run: mvn clean package -DskipTests
+      
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-jar
+          path: ./back/HackathonProject/demo/target/demo-*.jar
 
   deploy:
     environment:
