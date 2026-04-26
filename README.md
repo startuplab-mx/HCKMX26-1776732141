@@ -45,6 +45,7 @@ Hoy no existe un canal único, simple y trazable para que cualquier persona —i
 ### Pruebas y demo
 - **Postman** (colecciones en `back/HackathonProject/postman`) para probar los endpoints REST.
 - Datos sembrados automáticamente en el primer arranque: 2 usuarios (`admin/admin`, `authority/authority`), 2 autoridades, 4 formularios por rango de edad, y 16 reportes validados con respuestas y fechas aleatorias entre los últimos 90 días.
+- Link video demo: https://docs.google.com/videos/d/1CptyVSfrBPLvV-ViKRq9_sWRhb7zemM0azkVt6nsdfk/edit?usp=sharing
 
 ### Instrucciones para ejecutar el prototipo
 
@@ -108,7 +109,9 @@ Recorrido recomendado para la demo:
 
 | IA | Para qué | En qué medida |
 |----|----------|---------------|
-| **Claude Code** | Configuración de Maveny template del README. | Generación inicial del esqueleto y cuestionarios; la lógica de negocio fue revisada y ajustada manualmente. |
+| **Claude Code** | Configuración y generación template del README. | Generación inicial del esqueleto y cuestionarios; la lógica de negocio fue revisada y ajustada manualmente. |
+| **Perplexity** | Consulta. | Ayuda para con preguntas para modificar front. |
+| **Github Copliot** | Consulta. | Guía para configurar Github Actions. |
 
 ## Integrantes del equipo
 - Emma Ureña García
