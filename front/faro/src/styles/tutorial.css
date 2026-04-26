@@ -1,0 +1,112 @@
+.tutorial-root {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+}
+
+.tutorial-spotlight {
+    position: fixed;
+    border-radius: 14px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+    transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+    pointer-events: none;
+    outline: 3px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+}
+
+.tutorial-card {
+    position: fixed;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    padding: 1rem;
+    pointer-events: auto;
+    font-family: 'Open Sans', sans-serif;
+    color: #1a1a1a;
+    transition: top 0.25s ease, left 0.25s ease;
+}
+
+.tutorial-card-head {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.tutorial-mascot {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #f4f6f8;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.tutorial-bubble {
+    background: #e8f5ed;
+    border: 1px solid #a7d9b8;
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    flex: 1;
+}
+
+.tutorial-bubble p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #145f2e;
+}
+
+.tutorial-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.tutorial-progress {
+    display: flex;
+    gap: 4px;
+}
+
+.tutorial-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
+}
+
+.tutorial-dot-active {
+    background: #1a7a3c;
+    width: 14px;
+    border-radius: 999px;
+}
+
+.tutorial-next,
+.tutorial-skip {
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 14px;
+    cursor: pointer;
+}
+
+.tutorial-next {
+    background: #1a7a3c;
+    color: #fff;
+}
+
+.tutorial-next:hover {
+    background: #145f2e;
+}
+
+.tutorial-skip {
+    background: transparent;
+    color: #6b7280;
+}
+
+.tutorial-skip:hover {
+    color: #1a1a1a;
+}

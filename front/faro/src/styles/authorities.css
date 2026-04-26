@@ -1,0 +1,30 @@
+.landing .auth-state { font-size: 13px; color: var(--muted); margin-top: 0.5rem; }
+.landing .auth-error { color: #b03030; }
+
+.landing .auth-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0;
+    display: grid;
+    gap: 0.5rem;
+}
+.landing .auth-item {
+    background: var(--green-l);
+    border: 1px solid var(--green-b);
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.landing .auth-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-d);
+}
+.landing .auth-email {
+    font-size: 12px;
+    color: var(--green);
+    text-decoration: none;
+}
+.landing .auth-email:hover { text-decoration: underline; }

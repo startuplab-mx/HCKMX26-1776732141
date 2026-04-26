@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+    buildAnswersByOrder,
+    createDraft,
+    fileReport,
+    fingerprintEvidence,
+    getForm,
+    listForms,
+} from '../lib/api'
 
 type Copy = {
     reportTitle: string
@@ -15,18 +23,35 @@ const ageOptions = ['Menos de 13', '13 a 15', '16 a 17', '18 o más']
 const yesNoOptions = ['Sí', 'No']
 const multiOptions = ['TikTok', 'YouTube', 'Instagram', 'Facebook', 'X', 'Otra']
 
-export function ReportCard({ copy }: { copy: Copy }) {
-    const navigate = useNavigate()
+type Status =
+    | { kind: 'idle' }
+    | { kind: 'submitting'; step: string }
+    | { kind: 'error'; message: string }
+    | { kind: 'success'; message: string }
+
+export function ReportCard({
+    copy,
+    profileId,
+    onSubmitted,
+    onHelp,
+}: {
+    copy: Copy
+    profileId?: string
+    onSubmitted?: () => void
+    onHelp?: () => void
+}) {
     const [age, setAge] = useState('')
     const [recruitment, setRecruitment] = useState('')
     const [contentKnowledge, setContentKnowledge] = useState('')
     const [distribution, setDistribution] = useState<string[]>([])
     const [url, setUrl] = useState('')
     const [files, setFiles] = useState<FileList | null>(null)
+    const [status, setStatus] = useState<Status>({ kind: 'idle' })
+    const navigate = useNavigate()
 
     const canSubmit = useMemo(() => {
-        return age && recruitment && contentKnowledge
-    }, [age, recruitment, contentKnowledge])
+        return age && recruitment && contentKnowledge && status.kind !== 'submitting'
+    }, [age, recruitment, contentKnowledge, status.kind])
 
     const toggleDistribution = (value: string) => {
         setDistribution((current) =>
@@ -36,23 +61,69 @@ export function ReportCard({ copy }: { copy: Copy }) {
         )
     }
 
+    async function submitReport() {
+        try {
+            setStatus({ kind: 'submitting', step: 'Guardando borrador…' })
+
+            const forms = await listForms()
+            if (forms.length === 0) throw new Error('No hay formularios disponibles')
+            const form = await getForm(forms[0].id)
+
+            const orderedAnswers = [
+                age,
+                recruitment,
+                contentKnowledge,
+                distribution.join(', '),
+                url,
+            ]
+            const answers = buildAnswersByOrder(form, orderedAnswers)
+            const draft = await createDraft(form.id, answers, profileId)
+
+            if (files && files.length > 0) {
+                setStatus({ kind: 'submitting', step: 'Generando huella digital de la evidencia…' })
+                for (const file of Array.from(files)) {
+                    try {
+                        await fingerprintEvidence(draft.id, file)
+                    } catch (err) {
+                        console.warn('Fingerprint failed for', file.name, err)
+                    }
+                }
+            }
+
+            setStatus({ kind: 'submitting', step: 'Enviando a las autoridades…' })
+            const result = await fileReport(draft.id)
+            setStatus({ kind: 'success', message: result.message })
+            onSubmitted?.()
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Error desconocido'
+            setStatus({ kind: 'error', message })
+        }
+    }
+
+    if (status.kind === 'success') {
+        return (
+            <section className="card report-card success-card">
+                <div className="eyebrow">✅ Reporte recibido</div>
+                <h3>¡Reporte enviado con éxito!</h3>
+                <p>{status.message}</p>
+                <div className="actions" style={{ marginTop: '1rem' }}>
+                    <button className="btn btn-primary" type="button" onClick={() => navigate('/landing')}>
+                        Volver al inicio
+                    </button>
+                </div>
+            </section>
+        )
+    }
+
     return (
-        <section className="card report-card">
+        <section className="card report-card" data-tutorial="report">
             <h3>{copy.reportTitle}</h3>
             <p>{copy.reportDescription}</p>
 
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    console.log({
-                        age,
-                        recruitment,
-                        contentKnowledge,
-                        distribution,
-                        url,
-                        files,
-                    })
-                    navigate('/es-mx/success')
+                    void submitReport()
                 }}
             >
                 <div className="form-group">
@@ -162,13 +233,24 @@ export function ReportCard({ copy }: { copy: Copy }) {
                 </div>
 
                 <div className="actions">
-                    <button className="btn btn-primary" type="submit" disabled={!canSubmit}>
-                        {copy.sendButton}
+                    <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={!canSubmit}
+                        data-tutorial="submit"
+                    >
+                        {status.kind === 'submitting' ? status.step : copy.sendButton}
                     </button>
-                    <button className="btn btn-secondary" type="button">
+                    <button className="btn btn-secondary" type="button" onClick={onHelp}>
                         {copy.helpButton}
                     </button>
                 </div>
+
+                {status.kind === 'error' && (
+                    <p className="report-error" role="alert">
+                        No se pudo enviar el reporte: {status.message}
+                    </p>
+                )}
             </form>
 
             <div className="privacy">

@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap');
+
+.landing {
+    --green: #1a7a3c;
+    --green-d: #145f2e;
+    --green-l: #e8f5ed;
+    --green-b: #a7d9b8;
+    --orange: #e05a16;
+    --white: #fff;
+    --text: #1a1a1a;
+    --muted: #555;
+    --border: #dde2e8;
+    font-family: 'Open Sans', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.landing * { box-sizing: border-box; }
+
+.landing .navbar { background: var(--green); padding: 0 2rem; display: flex; align-items: center; gap: 2rem; min-height: 80px; }
+.landing .nav-logo { display: flex; flex-direction: column; min-width: 120px; }
+.landing .nav-logo-mark { display: flex; align-items: center; gap: 0; }
+.landing .logo-ch { font-family: 'Open Sans', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.landing .logo-dot { display: inline-block; width: 16px; height: 16px; background: #fff; border-radius: 50%; margin: 0 1px; position: relative; }
+.landing .logo-star { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); font-size: 9px; color: var(--green); font-weight: 900; }
+.landing .logo-reg { font-family: 'Open Sans', sans-serif; font-size: 13px; font-weight: 400; color: #fff; margin-left: 4px; align-self: flex-end; padding-bottom: 2px; }
+.landing .logo-country { font-size: 13px; font-weight: 700; color: #fff; margin-top: 1px; }
+.landing .logo-sub { font-size: 9px; color: rgba(255, 255, 255, 0.7); margin-top: 1px; }
+
+.landing .nav-links { display: flex; gap: 0.75rem; flex: 1; justify-content: center; }
+.landing .nav-link { background: transparent; border: 2px solid rgba(255, 255, 255, 0.85); color: #fff; font-family: 'Open Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 8px 22px; border-radius: 99px; cursor: pointer; transition: all 0.2s; }
+.landing .nav-link:hover { background: rgba(255, 255, 255, 0.15); }
+.landing .nav-stripe { height: 5px; background: var(--orange); }
+
+.landing .hero-section { display: grid; grid-template-columns: 55% 45%; min-height: 320px; }
+.landing .hero-img { background: #f4f6f8; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+.landing .hero-img-content { width: 100%; height: 100%; min-height: 300px; object-fit: contain; padding: 1.5rem; }
+.landing .hero-text { padding: 3rem 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+.landing .hero-text h1 { font-family: 'Open Sans', sans-serif; font-size: 2.8rem; font-weight: 800; color: var(--green); margin-bottom: 1rem; line-height: 1; }
+.landing .hero-text p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 1.75rem; max-width: 340px; }
+.landing .btn-hero { background: var(--green); color: #fff; border: none; border-radius: 8px; font-family: 'Open Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 13px 28px; cursor: pointer; display: inline-block; width: fit-content; }
+.landing .btn-hero:hover { background: var(--green-d); }
+
+.landing .video-section { display: grid; grid-template-columns: 40% 60%; min-height: 260px; background: var(--white); }
+.landing .video-box { background: var(--green); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; min-height: 220px; }
+.landing .play-btn { width: 0; height: 0; border-top: 28px solid transparent; border-bottom: 28px solid transparent; border-left: 48px solid rgba(255, 255, 255, 0.9); margin-left: 8px; }
+.landing .video-text { padding: 2.5rem 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+.landing .video-text h2 { font-family: 'Open Sans', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; line-height: 1.2; }
+.landing .video-text p { font-size: 13.5px; color: var(--muted); line-height: 1.8; }
+
+.landing .divider-line { height: 1px; background: var(--border); margin: 0; }
+
+.landing .report-section { background: var(--green-l); padding: 2.5rem 2rem; text-align: center; border-top: 1px solid var(--green-b); }
+.landing .report-section h2 { font-family: 'Open Sans', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--green-d); margin-bottom: 0.5rem; }
+.landing .report-section p { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; max-width: 480px; margin-inline: auto; line-height: 1.7; }
+.landing .btn-report { background: #1a7a3c; color: #fff; border: none; border-radius: 8px; font-family: 'Open Sans', sans-serif; font-size: 15px; font-weight: 700; padding: 14px 40px; cursor: pointer; }
+.landing .btn-report:hover { background: #145f2e; }
+
+.landing .landing-footer { background: var(--green); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+.landing .footer-brand { font-size: 12px; color: rgba(255, 255, 255, 0.75); }
+.landing .footer-brand b { color: #fff; }
+.landing .footer-rights { font-size: 11px; color: rgba(255, 255, 255, 0.6); }
+
+@media (max-width: 720px) {
+    .landing .hero-section,
+    .landing .video-section { grid-template-columns: 1fr; }
+    .landing .nav-links { display: none; }
+}

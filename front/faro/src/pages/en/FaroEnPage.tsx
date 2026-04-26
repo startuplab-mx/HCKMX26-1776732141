@@ -17,7 +17,7 @@ export function FaroEnPage() {
 
             <div className="grid">
                 <div>
-                    <LevelCard copy={copyEn} />
+                    <LevelCard copy={copyEn} validatedReports={0} />
                     <ReportCard copy={copyEn} />
                 </div>
             </div>
