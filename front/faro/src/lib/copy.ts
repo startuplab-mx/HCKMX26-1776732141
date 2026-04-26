@@ -19,7 +19,7 @@ export const copyEsMx = {
         'El enfoque está en el contenido reportado y en proteger la identidad de quien ayuda.',
     levelsTitle: '20 niveles FARO',
     levelsDesc: 'La progresión sigue potencias de 2: 2, 4, 8, 16...',
-    footer: 'Prototipo inicial de FARO con mascota, sistema de niveles y CTA principal',
+    footer: 'FARO Copyright 2026',
 }
 
 export const copyEn = {
@@ -43,5 +43,5 @@ export const copyEn = {
         'The focus stays on the reported content and on protecting the identity of the person helping.',
     levelsTitle: '20 BEACON levels',
     levelsDesc: 'Progression follows powers of 2: 2, 4, 8, 16...',
-    footer: 'Initial BEACON prototype with mascot, level system, and main CTA',
+    footer: 'BEACON Copyright 2026',
 }

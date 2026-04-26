@@ -1,4 +1,3 @@
-import { LevelsGrid } from '../../components/LevelsGrid'
 import { LevelCard } from '../../components/LevelCard'
 import { ReportCard } from '../../components/ReportCard'
 import { copyEsMx } from '../../lib/copy'
@@ -21,8 +20,6 @@ export function FaroEsMxPage() {
                     <LevelCard copy={copyEsMx} />
                     <ReportCard copy={copyEsMx} />
                 </div>
-
-                <LevelsGrid copy={copyEsMx} />
             </div>
 
             <p className="footer-note">{copyEsMx.footer}</p>

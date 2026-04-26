@@ -1,4 +1,3 @@
-import { LevelsGrid } from '../../components/LevelsGrid'
 import { LevelCard } from '../../components/LevelCard'
 import { ReportCard } from '../../components/ReportCard'
 import { copyEn } from '../../lib/copy'
@@ -21,8 +20,6 @@ export function FaroEnPage() {
                     <LevelCard copy={copyEn} />
                     <ReportCard copy={copyEn} />
                 </div>
-
-                <LevelsGrid copy={copyEn} />
             </div>
 
             <p className="footer-note">{copyEn.footer}</p>
