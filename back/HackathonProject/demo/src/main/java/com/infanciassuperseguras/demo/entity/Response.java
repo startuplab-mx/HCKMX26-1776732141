@@ -1,6 +1,7 @@
 package com.infanciassuperseguras.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +14,7 @@ public class Response {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "question_id")
+    @JsonIgnoreProperties({ "form", "hibernateLazyInitializer", "handler" })
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

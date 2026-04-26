@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ResponseFormRepository extends JpaRepository<ResponseForm, Long> {
     List<ResponseForm> findByStatus(ReportStatus status);
+    long countByStatus(ReportStatus status);
+    long countByProfileIdAndStatus(String profileId, ReportStatus status);
 }

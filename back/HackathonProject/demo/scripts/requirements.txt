@@ -1,0 +1,18 @@
+# Core (required)
+Pillow>=10.0.0
+numpy>=1.24.0
+imagehash>=4.3.0
+
+# Video (required for video fingerprinting)
+opencv-python-headless>=4.8.0
+
+# OCR (required for danger-keyword detection)
+pytesseract>=0.3.10
+
+# Audio (optional; enables chroma/MFCC/audio hash for video)
+librosa>=0.10.0
+soundfile>=0.12.0
+scipy>=1.11.0
+
+# Semantic embeddings (optional; enables OCR text similarity search)
+# sentence-transformers>=2.2.0

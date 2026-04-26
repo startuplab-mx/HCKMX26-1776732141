@@ -25,9 +25,11 @@ public class AuthorityResource {
     }
 
     @GET
-    @Operation(summary = "Lista todas las autoridades")
-    public List<Authority> list() {
-        return repository.findAll();
+    @Operation(summary = "Lista las autoridades. Usa ?enabled=true para filtrar solo las habilitadas.")
+    public List<Authority> list(@QueryParam("enabled") Boolean enabled) {
+        List<Authority> all = repository.findAll();
+        if (enabled == null) return all;
+        return all.stream().filter(a -> a.isEnabled() == enabled).toList();
     }
 
     @POST
@@ -35,6 +37,20 @@ public class AuthorityResource {
     public Response create(Authority authority) {
         Authority saved = repository.save(authority);
         return Response.status(Response.Status.CREATED).entity(saved).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Operation(summary = "Actualiza nombre, correo o estado de habilitación de una autoridad")
+    public Response update(@PathParam("id") Long id, Authority body) {
+        return repository.findById(id)
+                .map(existing -> {
+                    if (body.getName() != null) existing.setName(body.getName());
+                    if (body.getEmail() != null) existing.setEmail(body.getEmail());
+                    existing.setEnabled(body.isEnabled());
+                    return Response.ok(repository.save(existing)).build();
+                })
+                .orElse(Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @DELETE

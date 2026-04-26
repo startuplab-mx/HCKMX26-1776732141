@@ -2,6 +2,8 @@ package com.infanciassuperseguras.demo.resource;
 
 import com.infanciassuperseguras.demo.dto.AnswerDto;
 import com.infanciassuperseguras.demo.dto.CreateReportDto;
+import com.infanciassuperseguras.demo.dto.ReportDetailDto;
+import com.infanciassuperseguras.demo.dto.ReportSummaryDto;
 import com.infanciassuperseguras.demo.entity.ResponseForm;
 import com.infanciassuperseguras.demo.service.ReportingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,12 +22,6 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Reports", description = "Creación, edición, presentación y consulta de reportes ciudadanos.")
 public class ReportResource {
-
-    private static final String THANK_YOU_MSG =
-            "Agradecemos tu esfuerzo en promover un entorno digital seguro y libre de violencia contra niñas, niños y adolescentes. " +
-            "Tu reporte fue enviado al Centro Nacional de Respuesta a Incidentes Cibernéticos de la Guardia Nacional de México y a la " +
-            "Procuraduría Federal de Protección de Niñas, Niños y Adolescentes. Adicionalmente informaremos a los administradores de la " +
-            "red social en la que se difundió el contenido reportado para que eliminen el contenido.";
 
     private final ReportingService service;
 
@@ -52,9 +48,10 @@ public class ReportResource {
     @Operation(summary = "Presenta el reporte (FILED) y notifica por correo a las autoridades habilitadas")
     public Response file(@PathParam("id") Long id) {
         ResponseForm rf = service.fileReport(id);
+        String message = service.buildThankYouMessage(id);
         return Response.ok(Map.of(
                 "report", rf,
-                "message", THANK_YOU_MSG
+                "message", message
         )).build();
     }
 
@@ -65,9 +62,44 @@ public class ReportResource {
     }
 
     @GET
+    @Path("/summary")
+    @Operation(summary = "Resumen de reportes con nivel de peligro y estado de revisión (para dashboards)")
+    public List<ReportSummaryDto> listSummaries() {
+        return service.listSummaries();
+    }
+
+    @GET
     @Path("/{id}")
     @Operation(summary = "Obtiene el detalle de un reporte por id")
     public ResponseForm get(@PathParam("id") Long id) {
         return service.get(id);
+    }
+
+    @GET
+    @Path("/{id}/detail")
+    @Operation(summary = "Detalle del reporte con respuestas y evidencia (DTO plano para UI)")
+    public ReportDetailDto getDetail(@PathParam("id") Long id) {
+        return service.getDetail(id);
+    }
+
+    @POST
+    @Path("/{id}/review")
+    @Operation(summary = "Marca un reporte como revisado")
+    public ResponseForm markReviewed(@PathParam("id") Long id) {
+        return service.markReviewed(id);
+    }
+
+    @POST
+    @Path("/{id}/confirm-evidence")
+    @Operation(summary = "Confirma que la evidencia del reporte es relevante")
+    public ResponseForm markEvidenceConfirmed(@PathParam("id") Long id) {
+        return service.markEvidenceConfirmed(id);
+    }
+
+    @POST
+    @Path("/{id}/addressed")
+    @Operation(summary = "Marca el reporte como atendido")
+    public ResponseForm markAddressed(@PathParam("id") Long id) {
+        return service.markAddressed(id);
     }
 }
