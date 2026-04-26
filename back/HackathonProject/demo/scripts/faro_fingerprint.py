@@ -273,7 +273,8 @@ class ExtractorVideo:
         patron_movimiento = self._calcular_flujo_optico(cap, fps)
         texto_frames = self._extraer_texto_frames(keyframes)
         huella_audio = self._extraer_audio(ruta)
-        hash_seq = self._hash_secuencia(keyframes)
+        keyframes_dict = [asdict(kf) for kf in keyframes]
+        hash_seq = self._hash_secuencia(keyframes_dict)
         hash_archivo = self.extractor_img._hash_binario(ruta)
 
         cap.release()
@@ -284,7 +285,7 @@ class ExtractorVideo:
             fps=round(fps, 2),
             resolucion=(ancho, alto),
             total_frames=total_frames,
-            keyframes=[asdict(kf) for kf in keyframes],
+            keyframes=keyframes_dict,
             huella_audio=huella_audio,
             patron_movimiento=patron_movimiento,
             texto_ocr_frames=texto_frames,
@@ -400,13 +401,24 @@ class ExtractorVideo:
             return None
 
         try:
+            import shutil
+            import subprocess
+
+            if not shutil.which("ffmpeg"):
+                print("  [!] ffmpeg no encontrado - analisis de audio omitido. "
+                      "Instala ffmpeg desde https://ffmpeg.org/download.html",
+                      file=sys.stderr)
+                return None
+
             ruta_audio = ruta_video.rsplit(".", 1)[0] + "_audio_tmp.wav"
 
-            resultado = os.system(
-                f'ffmpeg -i "{ruta_video}" -ar 22050 -ac 1 -vn "{ruta_audio}" -y -loglevel quiet'
+            resultado = subprocess.run(
+                ["ffmpeg", "-i", ruta_video, "-ar", "22050", "-ac", "1",
+                 "-vn", ruta_audio, "-y", "-loglevel", "quiet"],
+                capture_output=True
             )
 
-            if resultado != 0 or not os.path.exists(ruta_audio):
+            if resultado.returncode != 0 or not os.path.exists(ruta_audio):
                 return None
 
             y, sr = librosa.load(ruta_audio, sr=22050, mono=True)

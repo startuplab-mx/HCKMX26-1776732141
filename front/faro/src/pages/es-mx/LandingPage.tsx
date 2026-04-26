@@ -10,14 +10,11 @@ export function LandingPage() {
         <div className="landing">
             <nav className="navbar">
                 <div className="nav-logo">
-                    <div className="nav-logo-mark">
-                        <span className="logo-ch">Ch</span>
-                        <span className="logo-dot">
-                            <span className="logo-star">✦</span>
-                        </span>
-                        <span className="logo-ch">ldFund</span>
-                        <span className="logo-reg">®</span>
-                    </div>
+                    <img
+                        className="nav-logo-img"
+                        src="/assets/childfund-logo.jpg"
+                        alt="ChildFund"
+                    />
                     <div className="logo-country">México</div>
                     <div className="logo-sub">Fondo para Niños de México A.C.</div>
                 </div>
@@ -46,8 +43,19 @@ export function LandingPage() {
                         adolescentes en México.
                     </p>
                     <button className="btn-hero" onClick={goToEsMx}>
-                        Hacer Reporte
+                        Reportar incidente como menor de edad
                     </button>
+
+                    <div className="hero-report-block">
+                        <h2>¿Necesitas reportar un incidente?</h2>
+                        <p>
+                            El proceso toma menos de 5 minutos. Tu información será enviada directamente a las
+                            autoridades correspondientes.
+                        </p>
+                        <button className="btn-report" onClick={goToReport}>
+                            Reportar incidente como persona mayor de edad
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -64,19 +72,6 @@ export function LandingPage() {
                         niños y adolescentes, puedes reportarlo de forma segura y confidencial a través de este sistema.
                     </p>
                 </div>
-            </section>
-
-            <div className="divider-line"></div>
-
-            <section className="report-section">
-                <h2>¿Necesitas reportar un incidente?</h2>
-                <p>
-                    El proceso toma menos de 5 minutos. Tu información será enviada directamente a las autoridades
-                    correspondientes.
-                </p>
-                <button className="btn-report" onClick={goToReport}>
-                    Reportar incidente como persona mayor de edad
-                </button>
             </section>
 
             <footer className="landing-footer">

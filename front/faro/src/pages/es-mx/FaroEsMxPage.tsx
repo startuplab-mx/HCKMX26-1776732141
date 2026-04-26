@@ -27,6 +27,7 @@ export function FaroEsMxPage() {
     const navigate = useNavigate()
     const [profileId] = useState<string>(() => getOrCreateProfileId())
     const [validated, setValidated] = useState<number>(0)
+    const [qualityStars, setQualityStars] = useState<number>(0)
     const [showTutorial, setShowTutorial] = useState<boolean>(() => !hasSeenTutorial())
 
     async function reloadStats() {
@@ -73,12 +74,17 @@ export function FaroEsMxPage() {
 
             <div className="grid">
                 <div>
-                    <LevelCard copy={copyEsMx} validatedReports={validated} />
+                    <LevelCard
+                        copy={copyEsMx}
+                        validatedReports={validated}
+                        qualityStars={qualityStars}
+                    />
                     <ReportCard
                         copy={copyEsMx}
                         profileId={profileId}
                         onSubmitted={reloadStats}
                         onHelp={() => setShowTutorial(true)}
+                        onQualityChange={setQualityStars}
                     />
                 </div>
             </div>

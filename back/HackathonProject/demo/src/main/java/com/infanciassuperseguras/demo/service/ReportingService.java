@@ -13,7 +13,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,17 +40,26 @@ public class ReportingService {
         this.mailService = mailService;
     }
 
+    /** Two evidences are considered the same content when their pHash differs by ≤ this many bits. */
+    private static final int PHASH_MATCH_THRESHOLD = 12;
+
     @Transactional(readOnly = true)
     public List<ReportSummaryDto> listSummaries() {
+        List<Evidence> allWithHash = evidenceRepo.findByPhashIsNotNull();
         return responseFormRepo.findAll().stream()
                 .sorted(Comparator.comparing(ResponseForm::getCreated).reversed())
-                .map(this::toSummary)
+                .map(rf -> toSummary(rf, allWithHash))
                 .toList();
     }
 
-    private ReportSummaryDto toSummary(ResponseForm rf) {
+    private ReportSummaryDto toSummary(ResponseForm rf, List<Evidence> allWithHash) {
         List<Evidence> ev = evidenceRepo.findByResponseFormId(rf.getId());
         long danger = ev.stream().filter(Evidence::isDangerous).count();
+        long duplicates = ev.stream()
+                .filter(e -> e.getPhash() != null)
+                .filter(e -> hasMatchInOtherReports(e, allWithHash))
+                .count();
+
         ReportSummaryDto dto = new ReportSummaryDto();
         dto.id = rf.getId();
         dto.filed = rf.getFiled();
@@ -56,6 +67,7 @@ public class ReportingService {
         dto.status = rf.getStatus().name();
         dto.evidenceCount = ev.size();
         dto.dangerousEvidenceCount = danger;
+        dto.duplicateEvidenceCount = duplicates;
         dto.reviewed = rf.isReviewed();
         dto.evidenceConfirmed = rf.isEvidenceConfirmed();
         dto.addressed = rf.isAddressed();
@@ -63,6 +75,31 @@ public class ReportingService {
         else if (!ev.isEmpty()) dto.dangerLevel = "WARNING";
         else dto.dangerLevel = "GRAY";
         return dto;
+    }
+
+    private boolean hasMatchInOtherReports(Evidence subject, List<Evidence> pool) {
+        Long ownReport = subject.getResponseForm() == null ? null : subject.getResponseForm().getId();
+        for (Evidence other : pool) {
+            if (other.getId().equals(subject.getId())) continue;
+            Long otherReport = other.getResponseForm() == null ? null : other.getResponseForm().getId();
+            if (ownReport != null && ownReport.equals(otherReport)) continue;
+            if (hammingHex(subject.getPhash(), other.getPhash()) <= PHASH_MATCH_THRESHOLD) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Returns Integer.MAX_VALUE when either hash is missing or unparseable. */
+    private static int hammingHex(String a, String b) {
+        if (a == null || b == null) return Integer.MAX_VALUE;
+        try {
+            BigInteger x = new BigInteger(a, 16);
+            BigInteger y = new BigInteger(b, 16);
+            return x.xor(y).bitCount();
+        } catch (NumberFormatException e) {
+            return Integer.MAX_VALUE;
+        }
     }
 
     @Transactional
@@ -176,16 +213,44 @@ public class ReportingService {
                 })
                 .toList();
 
+        List<Evidence> pool = evidenceRepo.findByPhashIsNotNull();
+
         dto.evidence = ev.stream().map(e -> {
             ReportDetailDto.EvidenceDetail d = new ReportDetailDto.EvidenceDetail();
             d.id = e.getId();
             d.filename = e.getFilename();
             d.dangerous = e.isDangerous();
             d.createdAt = e.getCreatedAt();
+            d.phash = e.getPhash();
+            d.thumbnailBase64 = e.getThumbnailBase64();
+            d.matches = findMatches(e, pool);
             return d;
         }).toList();
 
         return dto;
+    }
+
+    private List<ReportDetailDto.EvidenceMatch> findMatches(Evidence subject, List<Evidence> pool) {
+        List<ReportDetailDto.EvidenceMatch> result = new ArrayList<>();
+        if (subject.getPhash() == null) return result;
+        Long ownReport = subject.getResponseForm() == null ? null : subject.getResponseForm().getId();
+        for (Evidence other : pool) {
+            if (other.getId().equals(subject.getId())) continue;
+            Long otherReport = other.getResponseForm() == null ? null : other.getResponseForm().getId();
+            if (ownReport != null && ownReport.equals(otherReport)) continue;
+            int distance = hammingHex(subject.getPhash(), other.getPhash());
+            if (distance > PHASH_MATCH_THRESHOLD) continue;
+
+            ReportDetailDto.EvidenceMatch m = new ReportDetailDto.EvidenceMatch();
+            m.evidenceId = other.getId();
+            m.reportId = otherReport;
+            m.filename = other.getFilename();
+            m.hammingDistance = distance;
+            m.reportFiled = other.getResponseForm() == null ? null : other.getResponseForm().getFiled();
+            result.add(m);
+        }
+        result.sort(Comparator.comparingInt(x -> x.hammingDistance));
+        return result;
     }
 
     public long countValidatedByProfile(String profileId) {

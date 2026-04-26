@@ -195,13 +195,15 @@ export type ReportSummary = {
     dangerLevel: DangerLevel
     evidenceCount: number
     dangerousEvidenceCount: number
+    duplicateEvidenceCount: number
     reviewed: boolean
     evidenceConfirmed: boolean
     addressed: boolean
 }
 
 export async function listReportSummaries(): Promise<ReportSummary[]> {
-    return asJson(await fetch('/api/reports/summary'))
+    // bust any browser/proxy heuristic caching so duplicate / danger counts always reflect the latest evidence
+    return asJson(await fetch('/api/reports/summary', { cache: 'no-store' }))
 }
 
 export type ReportAnswerDetail = {
@@ -212,11 +214,22 @@ export type ReportAnswerDetail = {
     response: string
 }
 
+export type ReportEvidenceMatch = {
+    evidenceId: number
+    reportId: number
+    filename: string
+    hammingDistance: number
+    reportFiled: string | null
+}
+
 export type ReportEvidenceDetail = {
     id: number
     filename: string
     dangerous: boolean
     createdAt: string
+    phash: string | null
+    thumbnailBase64: string | null
+    matches: ReportEvidenceMatch[]
 }
 
 export type ReportDetail = {
@@ -234,7 +247,7 @@ export type ReportDetail = {
 }
 
 export async function getReportDetail(id: number): Promise<ReportDetail> {
-    return asJson(await fetch(`/api/reports/${id}/detail`))
+    return asJson(await fetch(`/api/reports/${id}/detail`, { cache: 'no-store' }))
 }
 
 export async function reviewReport(id: number): Promise<unknown> {

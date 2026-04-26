@@ -3,14 +3,13 @@ type Copy = {
     levelTitle: string
     levelDescription: string
     appName: string
-    currentGoal: string
     currentLevel: string
     nextGoal: string
 }
 
 /**
- * Progression follows powers of two: level N requires 2^N validated reports.
- * Level 0 = 1 report, Level 1 = 2, ..., Level 4 = 16, Level 5 = 32, etc.
+ * Profile-level progression follows powers of two: level N requires 2^N validated reports.
+ * (Used by the badge + progress bar; quality stars are independent.)
  */
 function deriveLevel(validatedReports: number) {
     const safe = Math.max(0, validatedReports)
@@ -26,12 +25,16 @@ function deriveLevel(validatedReports: number) {
 export function LevelCard({
     copy,
     validatedReports,
+    qualityStars,
 }: {
     copy: Copy
     validatedReports: number
+    /** 0–5: stars reflecting how complete the in-progress report is. 5 = all questions + evidence. */
+    qualityStars: number
 }) {
     const { level, nextThreshold, progressPct } = deriveLevel(validatedReports)
-    const stars = '★'.repeat(level)
+    const safeStars = Math.max(0, Math.min(5, qualityStars))
+    const stars = '★'.repeat(safeStars) + '☆'.repeat(5 - safeStars)
 
     return (
         <section className="card hero-level" data-tutorial="profile">
@@ -48,14 +51,14 @@ export function LevelCard({
                             {copy.appName} {level}
                         </div>
                         <div>
-                            <strong>{copy.currentGoal}</strong> {validatedReports} reportes validados
+                            <strong>Calidad del reporte</strong>
                         </div>
                     </div>
                     <div
                         className="stars-row"
-                        aria-label={`Nivel ${level} con ${level} estrellas`}
+                        aria-label={`Calidad del reporte: ${safeStars} de 5 estrellas`}
                     >
-                        {stars || '☆'}
+                        {stars}
                     </div>
                     <div className="progress-track" aria-hidden="true">
                         <div className="progress-bar" style={{ width: `${progressPct}%` }} />
@@ -63,7 +66,7 @@ export function LevelCard({
                     <div className="stats">
                         <div className="stat">
                             <small>{copy.currentLevel}</small>
-                            <strong>{level} estrellas</strong>
+                            <strong>{safeStars} estrellas</strong>
                         </div>
                         <div className="stat">
                             <small>{copy.nextGoal}</small>

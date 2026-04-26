@@ -28,6 +28,15 @@ public class Evidence {
     @Column(columnDefinition = "CLOB")
     private String fingerprintJson;
 
+    /** Hex-encoded perceptual hash extracted from the fingerprint payload. */
+    @Column(length = 32)
+    private String phash;
+
+    /** Base64-encoded JPEG thumbnail (max ~160x160) for images; null for videos. */
+    @Lob
+    @Column(columnDefinition = "CLOB")
+    private String thumbnailBase64;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -45,5 +54,9 @@ public class Evidence {
     public void setDangerous(boolean dangerous) { this.dangerous = dangerous; }
     public String getFingerprintJson() { return fingerprintJson; }
     public void setFingerprintJson(String fingerprintJson) { this.fingerprintJson = fingerprintJson; }
+    public String getPhash() { return phash; }
+    public void setPhash(String phash) { this.phash = phash; }
+    public String getThumbnailBase64() { return thumbnailBase64; }
+    public void setThumbnailBase64(String thumbnailBase64) { this.thumbnailBase64 = thumbnailBase64; }
     public Instant getCreatedAt() { return createdAt; }
 }

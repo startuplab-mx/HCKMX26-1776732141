@@ -10,6 +10,8 @@ public class ReportSummaryDto {
     public String dangerLevel; // DANGER | WARNING | GRAY
     public long evidenceCount;
     public long dangerousEvidenceCount;
+    /** How many of this report's evidences also appear in other reports (perceptual match). */
+    public long duplicateEvidenceCount;
     public boolean reviewed;
     public boolean evidenceConfirmed;
     public boolean addressed;

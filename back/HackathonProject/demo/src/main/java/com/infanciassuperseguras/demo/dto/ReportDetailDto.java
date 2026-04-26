@@ -30,5 +30,16 @@ public class ReportDetailDto {
         public String filename;
         public boolean dangerous;
         public Instant createdAt;
+        public String phash;
+        public String thumbnailBase64;
+        public List<EvidenceMatch> matches = new ArrayList<>();
+    }
+
+    public static class EvidenceMatch {
+        public Long evidenceId;
+        public Long reportId;
+        public String filename;
+        public int hammingDistance;
+        public Instant reportFiled;
     }
 }

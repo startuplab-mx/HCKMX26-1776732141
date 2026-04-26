@@ -7,4 +7,6 @@ public interface EvidenceRepository extends JpaRepository<Evidence, Long> {
     long countByDangerousTrue();
 
     java.util.List<Evidence> findByResponseFormId(Long responseFormId);
+
+    java.util.List<Evidence> findByPhashIsNotNull();
 }

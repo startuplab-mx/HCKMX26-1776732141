@@ -20,13 +20,9 @@
 .landing * { box-sizing: border-box; }
 
 .landing .navbar { background: var(--green); padding: 0 2rem; display: flex; align-items: center; gap: 2rem; min-height: 80px; }
-.landing .nav-logo { display: flex; flex-direction: column; min-width: 120px; }
-.landing .nav-logo-mark { display: flex; align-items: center; gap: 0; }
-.landing .logo-ch { font-family: 'Open Sans', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-.landing .logo-dot { display: inline-block; width: 16px; height: 16px; background: #fff; border-radius: 50%; margin: 0 1px; position: relative; }
-.landing .logo-star { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); font-size: 9px; color: var(--green); font-weight: 900; }
-.landing .logo-reg { font-family: 'Open Sans', sans-serif; font-size: 13px; font-weight: 400; color: #fff; margin-left: 4px; align-self: flex-end; padding-bottom: 2px; }
-.landing .logo-country { font-size: 13px; font-weight: 700; color: #fff; margin-top: 1px; }
+.landing .nav-logo { display: flex; flex-direction: column; min-width: 140px; }
+.landing .nav-logo-img { height: 56px; width: auto; display: block; object-fit: contain; }
+.landing .logo-country { font-size: 13px; font-weight: 700; color: #fff; margin-top: 4px; }
 .landing .logo-sub { font-size: 9px; color: rgba(255, 255, 255, 0.7); margin-top: 1px; }
 
 .landing .nav-links { display: flex; gap: 0.75rem; flex: 1; justify-content: center; }
@@ -52,10 +48,14 @@
 
 .landing .divider-line { height: 1px; background: var(--border); margin: 0; }
 
-.landing .report-section { background: var(--green-l); padding: 2.5rem 2rem; text-align: center; border-top: 1px solid var(--green-b); }
-.landing .report-section h2 { font-family: 'Open Sans', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--green-d); margin-bottom: 0.5rem; }
-.landing .report-section p { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; max-width: 480px; margin-inline: auto; line-height: 1.7; }
-.landing .btn-report { background: #1a7a3c; color: #fff; border: none; border-radius: 8px; font-family: 'Open Sans', sans-serif; font-size: 15px; font-weight: 700; padding: 14px 40px; cursor: pointer; }
+.landing .hero-report-block {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--green-b);
+}
+.landing .hero-report-block h2 { font-family: 'Open Sans', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--green-d); margin-bottom: 0.4rem; }
+.landing .hero-report-block p { font-size: 13px; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
+.landing .btn-report { background: #1a7a3c; color: #fff; border: none; border-radius: 8px; font-family: 'Open Sans', sans-serif; font-size: 14px; font-weight: 700; padding: 12px 24px; cursor: pointer; }
 .landing .btn-report:hover { background: #145f2e; }
 
 .landing .landing-footer { background: var(--green); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; }

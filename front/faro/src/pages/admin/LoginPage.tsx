@@ -32,14 +32,7 @@ export function LoginPage() {
         <div className="landing">
             <nav className="navbar">
                 <div className="nav-logo">
-                    <div className="nav-logo-mark">
-                        <span className="logo-ch">Ch</span>
-                        <span className="logo-dot">
-                            <span className="logo-star">✦</span>
-                        </span>
-                        <span className="logo-ch">ldFund</span>
-                        <span className="logo-reg">®</span>
-                    </div>
+                    <img className="nav-logo-img" src="/assets/childfund-logo.jpg" alt="ChildFund" />
                     <div className="logo-country">México</div>
                 </div>
                 <button className="nav-link" onClick={() => navigate('/landing')}>← Inicio</button>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     buildAnswersByOrder,
@@ -34,11 +34,14 @@ export function ReportCard({
     profileId,
     onSubmitted,
     onHelp,
+    onQualityChange,
 }: {
     copy: Copy
     profileId?: string
     onSubmitted?: () => void
     onHelp?: () => void
+    /** Notified when the in-progress report's quality (0–5 stars) changes. */
+    onQualityChange?: (stars: number) => void
 }) {
     const [age, setAge] = useState('')
     const [recruitment, setRecruitment] = useState('')
@@ -52,6 +55,27 @@ export function ReportCard({
     const canSubmit = useMemo(() => {
         return age && recruitment && contentKnowledge && status.kind !== 'submitting'
     }, [age, recruitment, contentKnowledge, status.kind])
+
+    /**
+     * Quality stars: one per filled question (cap at 4), plus the 5th star when evidence is attached.
+     * Resets to 0 once the report has been submitted successfully.
+     */
+    const qualityStars = useMemo(() => {
+        if (status.kind === 'success') return 0
+        const filled = [
+            !!age,
+            !!recruitment,
+            !!contentKnowledge,
+            distribution.length > 0,
+            url.trim().length > 0,
+        ].filter(Boolean).length
+        const hasFiles = !!files && files.length > 0
+        return Math.min(4, filled) + (hasFiles ? 1 : 0)
+    }, [age, recruitment, contentKnowledge, distribution, url, files, status.kind])
+
+    useEffect(() => {
+        onQualityChange?.(qualityStars)
+    }, [qualityStars, onQualityChange])
 
     const toggleDistribution = (value: string) => {
         setDistribution((current) =>

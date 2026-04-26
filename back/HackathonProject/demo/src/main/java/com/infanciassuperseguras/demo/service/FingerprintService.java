@@ -10,6 +10,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +22,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +73,8 @@ public class FingerprintService {
             ev.setFilename(originalFilename == null ? "" : originalFilename);
             ev.setFingerprintJson(huella.toString());
             ev.setDangerous(isDangerous(huella));
+            ev.setPhash(extractPhash(huella));
+            ev.setThumbnailBase64(buildThumbnail(tmp));
             return evidenceRepo.save(ev);
         } finally {
             Files.deleteIfExists(tmp);
@@ -126,6 +134,40 @@ public class FingerprintService {
             }
         }
         return false;
+    }
+
+    /** Pulls the perceptual hash out of the fingerprint payload (image or first video keyframe). */
+    private String extractPhash(com.fasterxml.jackson.databind.JsonNode huella) {
+        String h = huella.path("huella_imagen").path("phash").asText("");
+        if (!h.isBlank() && !"n/a".equals(h)) return h;
+        com.fasterxml.jackson.databind.JsonNode kfs = huella.path("huella_video").path("keyframes");
+        if (kfs.isArray() && kfs.size() > 0) {
+            String kfHash = kfs.get(0).path("phash").asText("");
+            if (!kfHash.isBlank() && !"n/a".equals(kfHash)) return kfHash;
+        }
+        return null;
+    }
+
+    /** Generates a base64-encoded JPEG thumbnail (~160x160) for raster images; returns null otherwise. */
+    private String buildThumbnail(Path file) {
+        try {
+            BufferedImage img = ImageIO.read(file.toFile());
+            if (img == null) return null;
+            int target = 160;
+            double scale = Math.min(1.0, (double) target / Math.max(img.getWidth(), img.getHeight()));
+            int w = Math.max(1, (int) Math.round(img.getWidth() * scale));
+            int h = Math.max(1, (int) Math.round(img.getHeight() * scale));
+            BufferedImage thumb = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = thumb.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(img.getScaledInstance(w, h, Image.SCALE_SMOOTH), 0, 0, null);
+            g.dispose();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(thumb, "jpg", baos);
+            return Base64.getEncoder().encodeToString(baos.toByteArray());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String extensionOf(String filename) {
