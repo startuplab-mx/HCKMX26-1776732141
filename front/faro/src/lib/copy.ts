@@ -8,7 +8,7 @@ export const copyEsMx = {
     currentGoal: 'Meta actual:',
     currentLevel: 'Nivel actual',
     nextGoal: 'Siguiente meta',
-    reportTitle: 'Pega el enlace del video o perfil',
+    reportTitle: 'Llena el reporte con el enlace del video o perfil',
     reportDescription:
         'Actúa de inmediato compartiendo un enlace de TikTok, YouTube o Instagram para que el equipo lo revise.',
     urlLabel: 'Enlace del contenido',
@@ -32,7 +32,7 @@ export const copyEn = {
     currentGoal: 'Current goal:',
     currentLevel: 'Current level',
     nextGoal: 'Next goal',
-    reportTitle: 'Paste the video or profile link',
+    reportTitle: 'Fill out the report with the video or profile link',
     reportDescription:
         'Take action now by sharing a TikTok, YouTube, or Instagram link for review.',
     urlLabel: 'Content URL',
