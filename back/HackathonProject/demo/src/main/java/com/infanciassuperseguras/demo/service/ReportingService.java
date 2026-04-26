@@ -16,8 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class ReportingService {
@@ -40,24 +44,27 @@ public class ReportingService {
         this.mailService = mailService;
     }
 
-    /** Two evidences are considered the same content when their pHash differs by ≤ this many bits. */
+    /** Per-hash Hamming threshold for a "near match". */
     private static final int PHASH_MATCH_THRESHOLD = 12;
+    /** How many of the four perceptual hashes must clear the threshold for a hash-consensus match. */
+    private static final int HASH_CONSENSUS_REQUIRED = 2;
+    /** How many shared OCR tokens (≥3 chars) trigger an OCR-overlap match. */
+    private static final int OCR_TOKEN_OVERLAP_REQUIRED = 2;
 
     @Transactional(readOnly = true)
     public List<ReportSummaryDto> listSummaries() {
-        List<Evidence> allWithHash = evidenceRepo.findByPhashIsNotNull();
+        List<Evidence> pool = evidenceRepo.findAllMatchable();
         return responseFormRepo.findAll().stream()
                 .sorted(Comparator.comparing(ResponseForm::getCreated).reversed())
-                .map(rf -> toSummary(rf, allWithHash))
+                .map(rf -> toSummary(rf, pool))
                 .toList();
     }
 
-    private ReportSummaryDto toSummary(ResponseForm rf, List<Evidence> allWithHash) {
+    private ReportSummaryDto toSummary(ResponseForm rf, List<Evidence> pool) {
         List<Evidence> ev = evidenceRepo.findByResponseFormId(rf.getId());
         long danger = ev.stream().filter(Evidence::isDangerous).count();
         long duplicates = ev.stream()
-                .filter(e -> e.getPhash() != null)
-                .filter(e -> hasMatchInOtherReports(e, allWithHash))
+                .filter(e -> hasMatchInOtherReports(e, pool))
                 .count();
 
         ReportSummaryDto dto = new ReportSummaryDto();
@@ -79,15 +86,59 @@ public class ReportingService {
 
     private boolean hasMatchInOtherReports(Evidence subject, List<Evidence> pool) {
         Long ownReport = subject.getResponseForm() == null ? null : subject.getResponseForm().getId();
+        Set<String> subjectTokens = ocrTokens(subject.getOcrText());
         for (Evidence other : pool) {
             if (other.getId().equals(subject.getId())) continue;
             Long otherReport = other.getResponseForm() == null ? null : other.getResponseForm().getId();
             if (ownReport != null && ownReport.equals(otherReport)) continue;
-            if (hammingHex(subject.getPhash(), other.getPhash()) <= PHASH_MATCH_THRESHOLD) {
-                return true;
-            }
+            if (matchKind(subject, other, subjectTokens) != null) return true;
         }
         return false;
+    }
+
+    /** Compares two evidences across all signals; returns null when there's no match. */
+    private MatchOutcome matchKind(Evidence subject, Evidence other, Set<String> subjectTokens) {
+        int hashHits = 0;
+        int minDistance = Integer.MAX_VALUE;
+        for (String[] pair : new String[][] {
+                { subject.getPhash(), other.getPhash() },
+                { subject.getDhash(), other.getDhash() },
+                { subject.getWhash(), other.getWhash() },
+                { subject.getAhash(), other.getAhash() },
+        }) {
+            int d = hammingHex(pair[0], pair[1]);
+            if (d == Integer.MAX_VALUE) continue;
+            if (d < minDistance) minDistance = d;
+            if (d <= PHASH_MATCH_THRESHOLD) hashHits++;
+        }
+
+        Set<String> otherTokens = ocrTokens(other.getOcrText());
+        boolean ocrMatch = false;
+        if (!subjectTokens.isEmpty() && !otherTokens.isEmpty()) {
+            Set<String> intersect = new HashSet<>(subjectTokens);
+            intersect.retainAll(otherTokens);
+            ocrMatch = intersect.size() >= OCR_TOKEN_OVERLAP_REQUIRED;
+        }
+
+        boolean hashConsensus = hashHits >= HASH_CONSENSUS_REQUIRED;
+        if (!hashConsensus && !ocrMatch) return null;
+
+        String kind;
+        if (hashConsensus && ocrMatch) kind = "STRONG";
+        else if (hashConsensus) kind = "HASH";
+        else kind = "OCR";
+        if (minDistance == Integer.MAX_VALUE) minDistance = 64;
+        return new MatchOutcome(kind, hashHits, ocrMatch, minDistance);
+    }
+
+    private record MatchOutcome(String kind, int hashHits, boolean ocrMatch, int minDistance) {}
+
+    private static Set<String> ocrTokens(String text) {
+        if (text == null || text.isBlank()) return Set.of();
+        return new HashSet<>(Arrays.asList(text.toLowerCase(Locale.ROOT).split("[^a-z0-9áéíóúñü]+")))
+                .stream()
+                .filter(t -> t.length() >= 3)
+                .collect(java.util.stream.Collectors.toSet());
     }
 
     /** Returns Integer.MAX_VALUE when either hash is missing or unparseable. */
@@ -213,7 +264,7 @@ public class ReportingService {
                 })
                 .toList();
 
-        List<Evidence> pool = evidenceRepo.findByPhashIsNotNull();
+        List<Evidence> pool = evidenceRepo.findAllMatchable();
 
         dto.evidence = ev.stream().map(e -> {
             ReportDetailDto.EvidenceDetail d = new ReportDetailDto.EvidenceDetail();
@@ -232,24 +283,32 @@ public class ReportingService {
 
     private List<ReportDetailDto.EvidenceMatch> findMatches(Evidence subject, List<Evidence> pool) {
         List<ReportDetailDto.EvidenceMatch> result = new ArrayList<>();
-        if (subject.getPhash() == null) return result;
         Long ownReport = subject.getResponseForm() == null ? null : subject.getResponseForm().getId();
+        Set<String> subjectTokens = ocrTokens(subject.getOcrText());
+
         for (Evidence other : pool) {
             if (other.getId().equals(subject.getId())) continue;
             Long otherReport = other.getResponseForm() == null ? null : other.getResponseForm().getId();
             if (ownReport != null && ownReport.equals(otherReport)) continue;
-            int distance = hammingHex(subject.getPhash(), other.getPhash());
-            if (distance > PHASH_MATCH_THRESHOLD) continue;
+
+            MatchOutcome outcome = matchKind(subject, other, subjectTokens);
+            if (outcome == null) continue;
 
             ReportDetailDto.EvidenceMatch m = new ReportDetailDto.EvidenceMatch();
             m.evidenceId = other.getId();
             m.reportId = otherReport;
             m.filename = other.getFilename();
-            m.hammingDistance = distance;
+            m.hammingDistance = outcome.minDistance();
+            m.hashHits = outcome.hashHits();
+            m.ocrMatch = outcome.ocrMatch();
+            m.matchKind = outcome.kind();
             m.reportFiled = other.getResponseForm() == null ? null : other.getResponseForm().getFiled();
             result.add(m);
         }
-        result.sort(Comparator.comparingInt(x -> x.hammingDistance));
+        // Strong matches first, then hash matches by distance, then OCR matches.
+        result.sort(Comparator
+                .comparingInt((ReportDetailDto.EvidenceMatch x) -> "STRONG".equals(x.matchKind) ? 0 : "HASH".equals(x.matchKind) ? 1 : 2)
+                .thenComparingInt(x -> x.hammingDistance));
         return result;
     }
 

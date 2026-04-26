@@ -8,5 +8,8 @@ public interface EvidenceRepository extends JpaRepository<Evidence, Long> {
 
     java.util.List<Evidence> findByResponseFormId(Long responseFormId);
 
-    java.util.List<Evidence> findByPhashIsNotNull();
+    @org.springframework.data.jpa.repository.Query(
+            "SELECT e FROM Evidence e WHERE e.phash IS NOT NULL OR e.dhash IS NOT NULL " +
+                    "OR e.whash IS NOT NULL OR e.ahash IS NOT NULL OR e.ocrText IS NOT NULL")
+    java.util.List<Evidence> findAllMatchable();
 }

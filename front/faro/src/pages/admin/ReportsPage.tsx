@@ -31,6 +31,12 @@ function dangerClass(r: ReportSummary): string {
     return `danger-${r.dangerLevel.toLowerCase()}`
 }
 
+function matchKindLabel(kind: 'STRONG' | 'HASH' | 'OCR'): string {
+    if (kind === 'STRONG') return 'Coincidencia fuerte'
+    if (kind === 'HASH') return 'Imagen similar'
+    return 'Texto similar'
+}
+
 export function ReportsPage() {
     const session = getSession()
     const [reports, setReports] = useState<ReportSummary[] | null>(null)
@@ -370,8 +376,14 @@ function ReviewModal({
                                                                     >
                                                                         Reporte #{m.reportId}
                                                                     </button>
+                                                                    <span className={`match-kind match-kind-${m.matchKind.toLowerCase()}`}>
+                                                                        {matchKindLabel(m.matchKind)}
+                                                                    </span>
                                                                     <span className="match-meta">
-                                                                        {m.filename || '—'} · {m.hammingDistance} bits
+                                                                        {m.filename || '—'} ·{' '}
+                                                                        {m.hashHits > 0 && `${m.hashHits}/4 hashes (${m.hammingDistance} bits)`}
+                                                                        {m.hashHits > 0 && m.ocrMatch && ' · '}
+                                                                        {m.ocrMatch && 'texto coincide'}
                                                                     </span>
                                                                 </li>
                                                             ))}

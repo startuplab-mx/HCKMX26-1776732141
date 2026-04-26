@@ -214,11 +214,19 @@ export type ReportAnswerDetail = {
     response: string
 }
 
+export type MatchKind = 'STRONG' | 'HASH' | 'OCR'
+
 export type ReportEvidenceMatch = {
     evidenceId: number
     reportId: number
     filename: string
+    /** Minimum Hamming distance across the four hash variants (0–64). */
     hammingDistance: number
+    /** How many of pHash/dHash/wHash/aHash matched within threshold (0–4). */
+    hashHits: number
+    /** True when OCR text overlap triggered the match. */
+    ocrMatch: boolean
+    matchKind: MatchKind
     reportFiled: string | null
 }
 

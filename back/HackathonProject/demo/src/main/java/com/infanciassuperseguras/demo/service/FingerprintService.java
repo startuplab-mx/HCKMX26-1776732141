@@ -73,7 +73,7 @@ public class FingerprintService {
             ev.setFilename(originalFilename == null ? "" : originalFilename);
             ev.setFingerprintJson(huella.toString());
             ev.setDangerous(isDangerous(huella));
-            ev.setPhash(extractPhash(huella));
+            populateFingerprintFields(ev, huella);
             ev.setThumbnailBase64(buildThumbnail(tmp));
             return evidenceRepo.save(ev);
         } finally {
@@ -136,16 +136,44 @@ public class FingerprintService {
         return false;
     }
 
-    /** Pulls the perceptual hash out of the fingerprint payload (image or first video keyframe). */
-    private String extractPhash(com.fasterxml.jackson.databind.JsonNode huella) {
-        String h = huella.path("huella_imagen").path("phash").asText("");
-        if (!h.isBlank() && !"n/a".equals(h)) return h;
+    /**
+     * Populates pHash / dHash / wHash / aHash / OCR text on the Evidence row from the script's
+     * JSON. Images expose all four hashes; videos only carry pHash and dHash from the first keyframe.
+     */
+    private void populateFingerprintFields(Evidence ev, com.fasterxml.jackson.databind.JsonNode huella) {
+        com.fasterxml.jackson.databind.JsonNode img = huella.path("huella_imagen");
+        if (!img.isMissingNode() && !img.isNull()) {
+            ev.setPhash(cleanHash(img.path("phash").asText("")));
+            ev.setDhash(cleanHash(img.path("dhash").asText("")));
+            ev.setWhash(cleanHash(img.path("whash").asText("")));
+            ev.setAhash(cleanHash(img.path("ahash").asText("")));
+            String ocr = img.path("texto_ocr").asText("");
+            if (ocr != null && !ocr.isBlank()) ev.setOcrText(ocr.toLowerCase(Locale.ROOT));
+            return;
+        }
+
         com.fasterxml.jackson.databind.JsonNode kfs = huella.path("huella_video").path("keyframes");
         if (kfs.isArray() && kfs.size() > 0) {
-            String kfHash = kfs.get(0).path("phash").asText("");
-            if (!kfHash.isBlank() && !"n/a".equals(kfHash)) return kfHash;
+            ev.setPhash(cleanHash(kfs.get(0).path("phash").asText("")));
+            ev.setDhash(cleanHash(kfs.get(0).path("dhash").asText("")));
         }
-        return null;
+        // Video OCR is currently a placeholder in the script.
+        com.fasterxml.jackson.databind.JsonNode frameTexts = huella.path("huella_video").path("texto_ocr_frames");
+        if (frameTexts.isArray() && frameTexts.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (com.fasterxml.jackson.databind.JsonNode t : frameTexts) {
+                String s = t.asText("");
+                if (s != null && !s.isBlank()) sb.append(s.toLowerCase(Locale.ROOT)).append(' ');
+            }
+            if (sb.length() > 0) ev.setOcrText(sb.toString().trim());
+        }
+    }
+
+    private String cleanHash(String raw) {
+        if (raw == null) return null;
+        String t = raw.trim();
+        if (t.isEmpty() || "n/a".equalsIgnoreCase(t)) return null;
+        return t;
     }
 
     /** Generates a base64-encoded JPEG thumbnail (~160x160) for raster images; returns null otherwise. */

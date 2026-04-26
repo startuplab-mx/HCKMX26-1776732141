@@ -318,6 +318,20 @@
 .match-link:hover { color: #145f2e; }
 .match-meta { color: #6b7280; }
 
+.match-kind {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 4px;
+}
+.match-kind-strong { background: #fde2e2; color: #c0392b; }
+.match-kind-hash { background: #fff4d6; color: #a06200; }
+.match-kind-ocr { background: #eef2ff; color: #4556b0; }
+
 .admin-section-title { font-size: 13px; font-weight: 700; color: #145f2e; margin-bottom: 0.75rem; }
 .admin-inline-form { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; }
 .admin-inline-form .fg { margin-bottom: 0; min-width: 160px; }

@@ -39,7 +39,14 @@ public class ReportDetailDto {
         public Long evidenceId;
         public Long reportId;
         public String filename;
+        /** Minimum Hamming distance across the four hash variants (0–64). */
         public int hammingDistance;
+        /** How many of pHash/dHash/wHash/aHash matched within threshold (0–4). */
+        public int hashHits;
+        /** True when OCR text overlap triggered the match. */
+        public boolean ocrMatch;
+        /** STRONG (hash+OCR), HASH (multi-hash consensus), or OCR (text only). */
+        public String matchKind;
         public Instant reportFiled;
     }
 }
